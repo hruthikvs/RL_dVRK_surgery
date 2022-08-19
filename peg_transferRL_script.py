@@ -6,17 +6,14 @@ Created on Wed Aug  3 22:36:45 2022
 """
 
  
-import math
+ 
 import numpy as np
-import pandas as pd
-from scipy.spatial.transform import Rotation
+import time
 from zmqRemoteApi import RemoteAPIClient
 import sys
 MAX_INT = sys.maxsize
 
 
-import os,time
-import numpy as np
 
 import gym
 from gym import spaces
@@ -25,7 +22,7 @@ from gym import spaces
 class dVRKCopeliaEnv(gym.Env):
     def __init__(self):
         
-         
+        self.num_steps = 100 
                
         client = RemoteAPIClient()
         self.sim = client.getObject('sim')
@@ -72,17 +69,27 @@ class dVRKCopeliaEnv(gym.Env):
         
         # step
         stat = self.sim.setObjectPosition(self.targetIDR,-1,finalpos.tolist())
-        print(stat)
+        
+        
         # observe again
         self.self_observe()
 
         
         #Calculating reward
-        
-        
         cost = np.linalg.norm(np.array(self.observation) - np.array(self.endPos))
-
-        return self.observation, -cost, False, {}
+        
+        #setting done to True
+        
+        self.num_steps -= 1
+        
+    
+        if self.num_steps <=0:
+            done = True
+        else :
+            done = False
+            
+            
+        return self.observation, -cost, done, {}
 
     def render(self):
         pass
@@ -103,6 +110,10 @@ class dVRKCopeliaEnv(gym.Env):
         #set start position
         self.sim.setObjectPosition(self.targetIDR,-1,self.startPos)
         
+        
+        
+        self.num_steps = 100 
+        
         self.self_observe()
         return self.observation
 
@@ -111,10 +122,13 @@ class dVRKCopeliaEnv(gym.Env):
 print(__name__)
 if __name__ == '__main__':
     env = dVRKCopeliaEnv()
+    done = None
     for k in range(5):
+        
+        done = False
         print('This is epidode',k)
         observation = env.reset()
-        for _ in range(40):
+        while not done:
           env.render()
           
           action = env.action_space.sample() 
