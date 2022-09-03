@@ -20,22 +20,28 @@ from gym import spaces
 # from gym.utils import colorize, seeding
 
 class dVRKCopeliaEnv(gym.Env):
-    def __init__(self):
+    def __init__(self,numsteps=100):
         
-        self.num_steps = 100 
+        self.distance_threshold = 0.01
+        
+        
+        self.num_steps = numsteps 
                
         client = RemoteAPIClient()
         self.sim = client.getObject('sim')
                
         # getting handles
+        self.toolTip =  self.sim.getObjectHandle("/L3_dx_respondable_TOOL2")
         self.targetIDR =  self.sim.getObjectHandle("/TargetPSMR")
+        self.peg = self.sim.getObjectHandle("/Peg")
         self.cylinder1 = self.sim.getObjectHandle("/Cylinder[0]")
         self.cylinder5 = self.sim.getObjectHandle("/Cylinder[5]")
         
         #getting positions
-        self.startPos = self.sim.getObjectPosition(self.cylinder1,-1)
+        self.startPos = self.sim.getObjectPosition(self.peg,-1)
         self.endPos = self.sim.getObjectPosition(self.cylinder5,-1)
         
+        print('TimeStep:',self.sim.getSimulationTimeStep())
         
         
         print('(dVRKVREP) initialized')
@@ -50,21 +56,42 @@ class dVRKCopeliaEnv(gym.Env):
         self.self_observe()
  
     
-    def self_observe(self):
-        # observe then assign
+    
+    
+    
+    
+    def self_observe(self) -> Dict[str, Union[int, np.ndarray]]:
+        """
+        Helper to create the observation.
+        :return: The current observation.
+        """
         targetpos = self.sim.getObjectPosition(self.targetIDR,-1)
-
-        self.observation = np.array([
+        
+        
+        
+        current_state = np.array([
             targetpos[0], targetpos[1],targetpos[2],
             ]).astype('float32')
+        
+        self.observation = OrderedDict(
+            [
+                ("observation", , current_state
+                ("achieved_goal", self.convert_if_needed(self.state.copy())),
+                ("desired_goal", self.convert_if_needed(self.desired_goal.copy())),
+            ]
+        )
+
+    
         
         
     
     def step(self,actions):
         
-        actions = np.clip(actions, -1, 1)
+        actions = np.clip(actions, self.action_space.low, self.action_space.low)
         
         scaling_factor = 0.01
+        
+        
         finalpos = self.observation + actions*scaling_factor
         
         # step
@@ -76,20 +103,25 @@ class dVRKCopeliaEnv(gym.Env):
 
         
         #Calculating reward
-        cost = np.linalg.norm(np.array(self.observation) - np.array(self.endPos))
+        dist_goal = np.linalg.norm(np.array(self.observation) - np.array(self.endPos))
+        reward = -1 if dist_goal>self.distance_threshold else 0
         
         #setting done to True
-        
-        self.num_steps -= 1
-        
+        self.num_steps -= 1       
     
-        if self.num_steps <=0:
+        if self.num_steps <=0 or dist_goal<1e-3:
+            reward = 10
             done = True
         else :
             done = False
+             
+        if not (self.observation[0]>-3.3 and self.observation[0]<-3.1 and self.observation[1]>-1 and self.observation[1]<1 and self.observation[0]<-2 and self.observation[2]>1.35 and self.observation[2]<1.6):
+            reward = -100
+            print(self.num_steps)
+            done=True
+          
             
-            
-        return self.observation, -cost, done, {}
+        return self.observation, reward, done, {}
 
     def render(self):
         pass
@@ -119,6 +151,17 @@ class dVRKCopeliaEnv(gym.Env):
 
      
 
+
+  
+
+
+
+
+
+
+
+
+
 print(__name__)
 if __name__ == '__main__':
     env = dVRKCopeliaEnv()
@@ -129,10 +172,10 @@ if __name__ == '__main__':
         print('This is epidode',k)
         observation = env.reset()
         while not done:
-          env.render()
+          #env.render()
           
           action = env.action_space.sample() 
-          print(action)
+          #print(action)
           # your agent here (this takes random actions)
           observation, reward, done, info = env.step(action)
           print(reward)
