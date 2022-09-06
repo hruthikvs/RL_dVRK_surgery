@@ -32,9 +32,7 @@ action_noise = NormalActionNoise(mean=np.zeros(n_actions), sigma=0.1 * np.ones(n
 
 
 
-model = DDPG("MultiInputPolicy", 
-             env, buffer_size=100000, 
-             replay_buffer_class=HerReplayBuffer,
+model = DDPG("MultiInputPolicy",env, buffer_size=100000, replay_buffer_class=HerReplayBuffer,
              replay_buffer_kwargs=dict(
         n_sampled_goal=4,
         goal_selection_strategy=goal_selection_strategy,

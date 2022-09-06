@@ -6,7 +6,7 @@ Created on Wed Aug  3 22:36:45 2022
 """
 
  
- 
+from collections import OrderedDict
 import numpy as np
 import time
 from zmqRemoteApi import RemoteAPIClient
@@ -16,14 +16,17 @@ MAX_INT = sys.maxsize
 
 
 import gym
+import gym.spaces
+print(gym.__version__)
 from gym import spaces
 # from gym.utils import colorize, seeding
 
-class dVRKCopeliaEnv(gym.Env):
+class dVRKCopeliaEnv(gym.GoalEnv):
     def __init__(self,numsteps=100):
         
         self.distance_threshold = 0.01
         
+         
         
         self.num_steps = numsteps 
                
@@ -50,8 +53,14 @@ class dVRKCopeliaEnv(gym.Env):
         act = np.array([1.]*3)
 
         self.action_space = spaces.Box(-act,act)
-        self.observation_space = spaces.Box(-obs,obs)
-        
+        self.observation_space = spaces.Dict(
+            dict(
+                observation= spaces.Box(-obs,obs, dtype=np.float32),
+                desired_goal= spaces.Box(-obs,obs, dtype=np.float32),
+                achieved_goal= spaces.Box(-obs,obs, dtype=np.float32),
+            )
+        )
+         
         
         self.self_observe()
  
@@ -60,7 +69,7 @@ class dVRKCopeliaEnv(gym.Env):
     
     
     
-    def self_observe(self) -> Dict[str, Union[int, np.ndarray]]:
+    def self_observe(self):
         """
         Helper to create the observation.
         :return: The current observation.
@@ -73,13 +82,8 @@ class dVRKCopeliaEnv(gym.Env):
             targetpos[0], targetpos[1],targetpos[2],
             ]).astype('float32')
         
-        self.observation = OrderedDict(
-            [
-                ("observation", , current_state
-                ("achieved_goal", self.convert_if_needed(self.state.copy())),
-                ("desired_goal", self.convert_if_needed(self.desired_goal.copy())),
-            ]
-        )
+        self.observation = OrderedDict([ ("observation",  current_state), ("achieved_goal", current_state),
+                ("desired_goal", np.array(self.endPos))])
 
     
         
@@ -87,12 +91,15 @@ class dVRKCopeliaEnv(gym.Env):
     
     def step(self,actions):
         
-        actions = np.clip(actions, self.action_space.low, self.action_space.low)
+        actions = np.clip(actions, self.action_space.low, self.action_space.high)
         
         scaling_factor = 0.01
         
         
-        finalpos = self.observation + actions*scaling_factor
+        finalpos = self.observation['observation'] + actions*scaling_factor
+        
+        print('final pos=',finalpos)
+        print('action=',actions)
         
         # step
         stat = self.sim.setObjectPosition(self.targetIDR,-1,finalpos.tolist())
@@ -103,7 +110,7 @@ class dVRKCopeliaEnv(gym.Env):
 
         
         #Calculating reward
-        dist_goal = np.linalg.norm(np.array(self.observation) - np.array(self.endPos))
+        dist_goal = np.linalg.norm(np.array(self.observation['observation']) - np.array(self.endPos))
         reward = -1 if dist_goal>self.distance_threshold else 0
         
         #setting done to True
@@ -115,7 +122,7 @@ class dVRKCopeliaEnv(gym.Env):
         else :
             done = False
              
-        if not (self.observation[0]>-3.3 and self.observation[0]<-3.1 and self.observation[1]>-1 and self.observation[1]<1 and self.observation[0]<-2 and self.observation[2]>1.35 and self.observation[2]<1.6):
+        if not (self.observation['observation'][0]>-3.3 and self.observation['observation'][0]<-3.1 and self.observation['observation'][1]>-1 and self.observation['observation'][1]<1 and self.observation['observation'][0]<-2 and self.observation['observation'][2]>1.35 and self.observation['observation'][2]<1.6):
             reward = -100
             print(self.num_steps)
             done=True
@@ -165,6 +172,7 @@ class dVRKCopeliaEnv(gym.Env):
 print(__name__)
 if __name__ == '__main__':
     env = dVRKCopeliaEnv()
+    
     done = None
     for k in range(5):
         
