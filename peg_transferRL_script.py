@@ -5,7 +5,7 @@ Created on Wed Aug  3 22:36:45 2022
 @author: Hruthik V S
 """
 
- 
+from typing import Any, Dict, Union 
 from collections import OrderedDict
 import numpy as np
 import time
@@ -24,27 +24,31 @@ from gym import spaces
 class dVRKCopeliaEnv(gym.GoalEnv):
     def __init__(self,numsteps=100):
         
-        self.distance_threshold = 0.01
+        self.distance_threshold = 0.02
         
-         
         
         self.num_steps = numsteps 
                
         client = RemoteAPIClient()
         self.sim = client.getObject('sim')
-               
+        self.sim.startSimulation()
+        
         # getting handles
         self.toolTip =  self.sim.getObjectHandle("/L3_dx_respondable_TOOL2")
         self.targetIDR =  self.sim.getObjectHandle("/TargetPSMR")
         self.peg = self.sim.getObjectHandle("/Peg")
-        self.cylinder1 = self.sim.getObjectHandle("/Cylinder[0]")
-        self.cylinder5 = self.sim.getObjectHandle("/Cylinder[5]")
+        
+        self.cylinder = []
+        for i in range(6):
+            cyl_tag = "/Cylinder[{0}]".format(i)
+            self.cylinder.append(self.sim.getObjectHandle(cyl_tag))
+        
         
         #getting positions
         self.startPos = self.sim.getObjectPosition(self.peg,-1)
-        self.endPos = self.sim.getObjectPosition(self.cylinder5,-1)
+        self.endPos = self.sim.getObjectPosition(self.cylinder[5],-1)
         
-        print('TimeStep:',self.sim.getSimulationTimeStep())
+        #print('TimeStep:',self.sim.getSimulationTimeStep())
         
         
         print('(dVRKVREP) initialized')
@@ -98,7 +102,7 @@ class dVRKCopeliaEnv(gym.GoalEnv):
         
         finalpos = self.observation['observation'] + actions*scaling_factor
         
-        print('final pos=',finalpos)
+        #print('final pos=',finalpos)
         print('action=',actions)
         
         # step
@@ -111,21 +115,30 @@ class dVRKCopeliaEnv(gym.GoalEnv):
         
         #Calculating reward
         dist_goal = np.linalg.norm(np.array(self.observation['observation']) - np.array(self.endPos))
+        
+        
         reward = -1 if dist_goal>self.distance_threshold else 0
         
         #setting done to True
         self.num_steps -= 1       
-    
-        if self.num_steps <=0 or dist_goal<1e-3:
-            reward = 10
+        print(self.num_steps)
+        if self.num_steps <=0 or dist_goal<self.distance_threshold:
+            print('yes')
             done = True
+            if dist_goal<self.distance_threshold:
+                print('Goal Achieved!!')
+                #Random Sampling of Goal
+                endPosLst = []
+                for i in range(6):
+                    endPosLst.append(self.sim.getObjectPosition(self.cylinder[i],-1))
+               
         else :
             done = False
              
         if not (self.observation['observation'][0]>-3.3 and self.observation['observation'][0]<-3.1 and self.observation['observation'][1]>-1 and self.observation['observation'][1]<1 and self.observation['observation'][0]<-2 and self.observation['observation'][2]>1.35 and self.observation['observation'][2]<1.6):
-            reward = -100
-            print(self.num_steps)
-            done=True
+            reward = -1
+            #print(self.num_steps)
+            #done=True
           
             
         return self.observation, reward, done, {}
@@ -139,7 +152,7 @@ class dVRKCopeliaEnv(gym.GoalEnv):
         print('end')
         
         #TODO
-        time.sleep(0.1)
+        time.sleep(0.2)
         
         
         #start Simulation 
@@ -158,10 +171,10 @@ class dVRKCopeliaEnv(gym.GoalEnv):
 
      
 
-
-  
-
-
+    def compute_reward(self, achieved_goal, desired_goal, info: Dict[str, Any]) -> Union[np.ndarray, float]:
+        d = np.linalg.norm(np.array(achieved_goal) - np.array(desired_goal))
+        return -np.array(d > self.distance_threshold, dtype=np.float64)
+    
 
 
 

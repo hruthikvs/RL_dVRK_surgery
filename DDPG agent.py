@@ -7,6 +7,8 @@ from stable_baselines3.her.goal_selection_strategy import GoalSelectionStrategy
 
 from stable_baselines3.common.noise import NormalActionNoise, OrnsteinUhlenbeckActionNoise
 
+print('yes')
+
 
 model_class =  DDPG
 
@@ -19,10 +21,6 @@ goal_selection_strategy = 'future' # equivalent to GoalSelectionStrategy.FUTURE
 online_sampling = True
 # Time limit for the episodes
 max_episode_length = MAX_EP_LEN
-
-
-
-
 
 
 # The noise objects for DDPG
