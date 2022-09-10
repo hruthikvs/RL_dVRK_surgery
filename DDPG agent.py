@@ -14,7 +14,7 @@ model_class =  DDPG
 
 MAX_EP_LEN = 100
 
-env = dVRKCopeliaEnv(numsteps=MAX_EP_LEN)
+env = dVRKCopeliaEnv(maxsteps=MAX_EP_LEN)
 # Available strategies (cf paper): future, final, episode
 goal_selection_strategy = 'future' # equivalent to GoalSelectionStrategy.FUTURE
 # If True the HER transitions will get sampled online
@@ -39,9 +39,13 @@ model = DDPG("MultiInputPolicy",env, buffer_size=100000, replay_buffer_class=Her
 ),
              verbose=1)
 
-model.learn(total_timesteps=10000, log_interval=10)
+
+print(model.set_env(env))
+
+model.learn(total_timesteps=50000, log_interval=1)
 model.save("ddpg_dVRK")
 env = model.get_env()
+
 
 del model # remove to demonstrate saving and loading
 

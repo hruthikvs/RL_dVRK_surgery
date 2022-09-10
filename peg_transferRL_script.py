@@ -4,7 +4,7 @@ Created on Wed Aug  3 22:36:45 2022
 
 @author: Hruthik V S
 """
-
+import random
 from typing import Any, Dict, Union 
 from collections import OrderedDict
 import numpy as np
@@ -22,12 +22,13 @@ from gym import spaces
 # from gym.utils import colorize, seeding
 
 class dVRKCopeliaEnv(gym.GoalEnv):
-    def __init__(self,numsteps=100):
+    def __init__(self,maxsteps=100):
         
         self.distance_threshold = 0.02
         
         
-        self.num_steps = numsteps 
+        self.max_steps = maxsteps 
+        self.num_steps = 0
                
         client = RemoteAPIClient()
         self.sim = client.getObject('sim')
@@ -38,34 +39,34 @@ class dVRKCopeliaEnv(gym.GoalEnv):
         self.targetIDR =  self.sim.getObjectHandle("/TargetPSMR")
         self.peg = self.sim.getObjectHandle("/Peg")
         
+        #getting positions
         self.cylinder = []
+        self.endPos = []
         for i in range(6):
             cyl_tag = "/Cylinder[{0}]".format(i)
             self.cylinder.append(self.sim.getObjectHandle(cyl_tag))
+            self.endPos.append(self.sim.getObjectPosition(self.cylinder[i],-1))
         
-        
-        #getting positions
         self.startPos = self.sim.getObjectPosition(self.peg,-1)
-        self.endPos = self.sim.getObjectPosition(self.cylinder[5],-1)
-        
+        self.currentgoal =  random.sample(self.endPos, 1)
         #print('TimeStep:',self.sim.getSimulationTimeStep())
         
         
         print('(dVRKVREP) initialized')
 
-        obs = np.array([np.inf]*3)
-        act = np.array([1.]*3)
+        obs = np.inf
+        act = 1
 
-        self.action_space = spaces.Box(-act,act)
+        self.action_space = spaces.Box(-act,act, shape = (3,))
         self.observation_space = spaces.Dict(
             dict(
-                observation= spaces.Box(-obs,obs, dtype=np.float32),
-                desired_goal= spaces.Box(-obs,obs, dtype=np.float32),
-                achieved_goal= spaces.Box(-obs,obs, dtype=np.float32),
+                observation= spaces.Box(-obs,obs,shape=(6,), dtype=np.float32),
+                desired_goal= spaces.Box(-obs,obs,shape=(3,), dtype=np.float32),
+                achieved_goal= spaces.Box(-obs,obs,shape=(3,), dtype=np.float32),
             )
         )
          
-        
+        self.velocity = np.zeros([3])
         self.self_observe()
  
     
@@ -78,16 +79,22 @@ class dVRKCopeliaEnv(gym.GoalEnv):
         Helper to create the observation.
         :return: The current observation.
         """
+        
+        
         targetpos = self.sim.getObjectPosition(self.targetIDR,-1)
         
         
         
-        current_state = np.array([
+        current_pos = np.array([
             targetpos[0], targetpos[1],targetpos[2],
             ]).astype('float32')
         
-        self.observation = OrderedDict([ ("observation",  current_state), ("achieved_goal", current_state),
-                ("desired_goal", np.array(self.endPos))])
+        current_state = np.append(current_pos,self.velocity)
+        
+        self.observation = OrderedDict([ ("observation",  current_state), ("achieved_goal", current_state[:3]),
+                ("desired_goal", np.array(self.currentgoal))])
+        
+        
 
     
         
@@ -97,10 +104,14 @@ class dVRKCopeliaEnv(gym.GoalEnv):
         
         actions = np.clip(actions, self.action_space.low, self.action_space.high)
         
-        scaling_factor = 0.01
+        scaling_factor = 0.005
         
+        #Calculating velocity
+        dt = self.sim.getSimulationTimeStep()
+        self.velocity = np.array( (actions*scaling_factor) / dt )
         
-        finalpos = self.observation['observation'] + actions*scaling_factor
+    
+        finalpos = self.observation['observation'][:3] + actions*scaling_factor
         
         #print('final pos=',finalpos)
         print('action=',actions)
@@ -112,35 +123,32 @@ class dVRKCopeliaEnv(gym.GoalEnv):
         # observe again
         self.self_observe()
 
-        
         #Calculating reward
-        dist_goal = np.linalg.norm(np.array(self.observation['observation']) - np.array(self.endPos))
+        dist_goal = np.linalg.norm(np.array(finalpos) - np.array(self.currentgoal))
         
         
         reward = -1 if dist_goal>self.distance_threshold else 0
         
         #setting done to True
-        self.num_steps -= 1       
+        self.num_steps += 1       
         print(self.num_steps)
-        if self.num_steps <=0 or dist_goal<self.distance_threshold:
+        if self.num_steps > self.max_steps or dist_goal<self.distance_threshold:
             print('yes')
             done = True
             if dist_goal<self.distance_threshold:
                 print('Goal Achieved!!')
                 #Random Sampling of Goal
-                endPosLst = []
-                for i in range(6):
-                    endPosLst.append(self.sim.getObjectPosition(self.cylinder[i],-1))
+                self.currentgoal = random.sample(self.endPos,1)
                
         else :
             done = False
              
-        if not (self.observation['observation'][0]>-3.3 and self.observation['observation'][0]<-3.1 and self.observation['observation'][1]>-1 and self.observation['observation'][1]<1 and self.observation['observation'][0]<-2 and self.observation['observation'][2]>1.35 and self.observation['observation'][2]<1.6):
-            reward = -1
+        if not (self.observation['observation'][0]>-3.3 and self.observation['observation'][0]<-3.1 and self.observation['observation'][1]>-1 and self.observation['observation'][1]<1 and self.observation['observation'][2]>1.35 and self.observation['observation'][2]<1.6):
+            reward = self.num_steps - 100 - 1
             #print(self.num_steps)
-            #done=True
+            done=True
           
-            
+        print(reward) 
         return self.observation, reward, done, {}
 
     def render(self):
@@ -164,7 +172,7 @@ class dVRKCopeliaEnv(gym.GoalEnv):
         
         
         
-        self.num_steps = 100 
+        self.num_steps = 0  
         
         self.self_observe()
         return self.observation
