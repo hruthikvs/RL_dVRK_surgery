@@ -7,7 +7,10 @@ from stable_baselines3.her.goal_selection_strategy import GoalSelectionStrategy
 
 from stable_baselines3.common.noise import NormalActionNoise, OrnsteinUhlenbeckActionNoise
 
+<<<<<<< HEAD
 print('yes')
+=======
+>>>>>>> changes_experiment
 
 model_class =  DDPG
 
