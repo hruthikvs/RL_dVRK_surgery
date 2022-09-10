@@ -7,10 +7,7 @@ from stable_baselines3.her.goal_selection_strategy import GoalSelectionStrategy
 
 from stable_baselines3.common.noise import NormalActionNoise, OrnsteinUhlenbeckActionNoise
 
-print('DDPG Agent start gitHub')
-print('making an expeimental change')
-print('making another change')
-
+print('yes')
 
 model_class =  DDPG
 
