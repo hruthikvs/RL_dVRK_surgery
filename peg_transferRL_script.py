@@ -38,17 +38,29 @@ class dVRKCopeliaEnv(gym.GoalEnv):
         self.toolTip =  self.sim.getObjectHandle("/L3_dx_respondable_TOOL2")
         self.targetIDR =  self.sim.getObjectHandle("/TargetPSMR")
         self.peg = self.sim.getObjectHandle("/Peg")
+        self.goalSphere = self.sim.getObjectHandle("/Goal")
         
         #getting positions
         self.cylinder = []
         self.endPos = []
-        for i in range(6):
+        
+        for i in range(0,9):
             cyl_tag = "/Cylinder[{0}]".format(i)
+            
             self.cylinder.append(self.sim.getObjectHandle(cyl_tag))
-            self.endPos.append(self.sim.getObjectPosition(self.cylinder[i],-1))
+            
+            goal_pos = np.array(self.sim.getObjectPosition(self.cylinder[i],-1)) + np.array([0,0,0.02])
+            self.endPos.append(goal_pos.tolist())
+        #removing start position from  sampling goal array
+        self.endPos.pop(0)
         
         self.startPos = self.sim.getObjectPosition(self.peg,-1)
-        self.currentgoal =  random.sample(self.endPos, 1)
+        
+        self.currentgoal =  random.sample(self.endPos, 1)[0]
+        #setting goal sphere position
+        self.sim.setObjectPosition(self.goalSphere,-1,self.currentgoal  )
+        
+        #self.currentgoal = self.endPos[4]
         #print('TimeStep:',self.sim.getSimulationTimeStep())
         
         
@@ -95,6 +107,8 @@ class dVRKCopeliaEnv(gym.GoalEnv):
                 ("desired_goal", np.array(self.currentgoal))])
         
         
+        
+        
 
     
         
@@ -114,7 +128,8 @@ class dVRKCopeliaEnv(gym.GoalEnv):
         finalpos = self.observation['observation'][:3] + actions*scaling_factor
         
         #print('final pos=',finalpos)
-        print('action=',actions)
+        
+        #print('action=',actions)
         
         # step
         stat = self.sim.setObjectPosition(self.targetIDR,-1,finalpos.tolist())
@@ -131,24 +146,27 @@ class dVRKCopeliaEnv(gym.GoalEnv):
         
         #setting done to True
         self.num_steps += 1       
-        print(self.num_steps)
-        if self.num_steps > self.max_steps or dist_goal<self.distance_threshold:
-            print('yes')
+        
+        #print(self.num_steps)
+        
+        if self.num_steps >= self.max_steps or dist_goal<self.distance_threshold:
+            print(self.num_steps) 
             done = True
             if dist_goal<self.distance_threshold:
                 print('Goal Achieved!!')
+                
                 #Random Sampling of Goal
-                self.currentgoal = random.sample(self.endPos,1)
+                # self.currentgoal = random.sample(self.endPos,1)
                
         else :
             done = False
              
         if not (self.observation['observation'][0]>-3.3 and self.observation['observation'][0]<-3.1 and self.observation['observation'][1]>-1 and self.observation['observation'][1]<1 and self.observation['observation'][2]>1.35 and self.observation['observation'][2]<1.6):
-            reward = self.num_steps - 100 - 1
+            reward = self.num_steps - self.max_steps -1
             #print(self.num_steps)
             done=True
           
-        print(reward) 
+        #print(reward) 
         return self.observation, reward, done, {}
 
     def render(self):
@@ -170,11 +188,15 @@ class dVRKCopeliaEnv(gym.GoalEnv):
         #set start position
         self.sim.setObjectPosition(self.targetIDR,-1,self.startPos)
         
+        #sampling Random Goal After each episode
+        self.currentgoal =  random.sample(self.endPos, 1)[0]
         
+        self.sim.setObjectPosition(self.goalSphere,-1,self.currentgoal  )
         
         self.num_steps = 0  
         
         self.self_observe()
+        
         return self.observation
 
      

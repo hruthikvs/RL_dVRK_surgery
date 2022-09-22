@@ -14,17 +14,16 @@ model_class =  DDPG
 
 MAX_EP_LEN = 100
 
-env = dVRKCopeliaEnv(numsteps=MAX_EP_LEN)
+env = dVRKCopeliaEnv(maxsteps=MAX_EP_LEN)
 
 model = model_class.load('ddpg_dVRK', env=env)
 
 obs = env.reset()
 while True:
     action, _states = model.predict(obs)
-    action = action[0]
-    
+
     obs, rewards, done, info = env.step(action) 
-    print(obs)
+    #print(obs)
     env.render()
     if done:
         print('Episode Done')
