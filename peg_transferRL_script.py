@@ -14,12 +14,9 @@ import sys
 MAX_INT = sys.maxsize
 
 
-
 import gym
-import gym.spaces
-print(gym.__version__)
-from gym import spaces
-# from gym.utils import colorize, seeding
+import gym.spaces 
+from gym import spaces 
 
 class dVRKCopeliaEnv(gym.GoalEnv):
     def __init__(self,maxsteps=100):
@@ -32,6 +29,7 @@ class dVRKCopeliaEnv(gym.GoalEnv):
                
         client = RemoteAPIClient()
         self.sim = client.getObject('sim')
+        self.sim.intparam_speedmodifier
         self.sim.startSimulation()
         
         # getting handles
@@ -217,7 +215,7 @@ if __name__ == '__main__':
     env = dVRKCopeliaEnv()
     
     done = None
-    for k in range(5):
+    for k in range(1):
         
         done = False
         print('This is epidode',k)
@@ -230,6 +228,7 @@ if __name__ == '__main__':
           # your agent here (this takes random actions)
           observation, reward, done, info = env.step(action)
           print(reward)
+           
           
       
     
@@ -237,3 +236,4 @@ if __name__ == '__main__':
     
     print('simulation ended. leaving in 5 seconds...')
     time.sleep(5)
+     
