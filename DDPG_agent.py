@@ -35,7 +35,7 @@ model = DDPG("MultiInputPolicy",env, buffer_size=100000, replay_buffer_class=Her
         goal_selection_strategy=goal_selection_strategy,
         online_sampling=online_sampling,
         max_episode_length=max_episode_length,
-),
+),action_noise=action_noise,
              verbose=1)
 
 
