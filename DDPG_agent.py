@@ -13,8 +13,8 @@ model_class =  DDPG
 
 MAX_EP_LEN = 100
 
-models_dir = f"models/DDPGHER-{int(time.time())}"
-logdir = f"logs-{int(time.time())}"
+models_dir = f"models/DDPG_HER-{int(time.time())}"
+logdir = f"logs/DDPG_HER-{int(time.time())}"
 
 if not os.path.exists(models_dir):
     os.makedirs(models_dir)
@@ -49,7 +49,7 @@ model = DDPG("MultiInputPolicy",env, buffer_size=100000, replay_buffer_class=Her
              tensorboard_log= logdir)
 
 
-print(model.set_env(env))
+ 
 
 
 #epochs 
