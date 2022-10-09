@@ -1,10 +1,10 @@
 import gym
 import numpy as np
 from peg_transferRL_script import dVRKCopeliaEnv
-
+import os
 from stable_baselines3 import DDPG,HerReplayBuffer
 from stable_baselines3.her.goal_selection_strategy import GoalSelectionStrategy
-
+import time
 from stable_baselines3.common.noise import NormalActionNoise, OrnsteinUhlenbeckActionNoise
 
  
@@ -12,6 +12,15 @@ from stable_baselines3.common.noise import NormalActionNoise, OrnsteinUhlenbeckA
 model_class =  DDPG
 
 MAX_EP_LEN = 100
+
+models_dir = f"models/DDPGHER-{int(time.time())}"
+logdir = f"logs-{int(time.time())}"
+
+if not os.path.exists(models_dir):
+    os.makedirs(models_dir)
+    
+if not os.path.exists(logdir):
+    os.makedirs(logdir)
 
 env = dVRKCopeliaEnv(maxsteps=MAX_EP_LEN)
 # Available strategies (cf paper): future, final, episode
@@ -24,7 +33,7 @@ max_episode_length = MAX_EP_LEN
 
 # The noise objects for DDPG
 n_actions = env.action_space.shape[-1]
-action_noise = NormalActionNoise(mean=np.zeros(n_actions), sigma=0.1 * np.ones(n_actions))
+action_noise = NormalActionNoise(mean=np.zeros(n_actions), sigma=0.01 * np.ones(n_actions))
 
 
 
@@ -34,21 +43,27 @@ model = DDPG("MultiInputPolicy",env, buffer_size=100000, replay_buffer_class=Her
         n_sampled_goal=4,
         goal_selection_strategy=goal_selection_strategy,
         online_sampling=online_sampling,
-        max_episode_length=max_episode_length,
-),action_noise=action_noise,
-             verbose=1)
+        max_episode_length=max_episode_length,) 
+        ,action_noise=action_noise,
+             verbose=1, 
+             tensorboard_log= logdir)
 
 
 print(model.set_env(env))
 
-model.learn(total_timesteps=50000, log_interval=1)
-model.save("ddpg_dVRK")
+
+#epochs 
+TIMESTEPS = 1000
+for i in range(1,50):
+    model.learn(total_timesteps=TIMESTEPS, reset_num_timesteps=False, log_interval=1,tb_log_name='DDPG_HER')    #model reset set to false: prevent model reset for every learn
+    model.save(f"{models_dir}/{TIMESTEPS*i}")
 env = model.get_env()
+
 
 
 del model # remove to demonstrate saving and loading
 
-model = DDPG.load("ddpg_dVRK")
+model = DDPG.load(f"{models_dir}/{TIMESTEPS*50}")
 
 obs = env.reset()
 while True:
