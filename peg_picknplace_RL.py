@@ -1,17 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Oct 11 15:45:19 2022
+Created on Tue Oct 18 20:50:13 2022
 
 @author: Hruthik V S
 """
 
-import PIL.Image as Image
-import io
-import base64
-import cv2
-from matplotlib import pyplot as plt
-
-
+ 
 import random
 from typing import Any, Dict, Union 
 from collections import OrderedDict
@@ -26,7 +20,7 @@ import gym
 import gym.spaces 
 from gym import spaces 
 
-class dVRKCopeliaVisionEnv(gym.GoalEnv):
+class dVRKCopeliaPicknPlaceEnv(gym.GoalEnv):
     def __init__(self,maxsteps=100):
         
         self.distance_threshold = 0.02
@@ -45,10 +39,8 @@ class dVRKCopeliaVisionEnv(gym.GoalEnv):
         self.targetIDR =  self.sim.getObjectHandle("/TargetPSMR")
         self.peg = self.sim.getObjectHandle("/Peg")
         self.goalSphere = self.sim.getObjectHandle("/Goal")
-        
-        #camera handle
-        self.camera_side = self.sim.getObjectHandle("/Camera[1]")
-        self.camera_top = self.sim.getObjectHandle("/Vision_sensor_left")
+        self.gripper1R = self.sim.getObjectHandle("J3_dx_TOOL2")
+        self.gripper2R = self.sim.getObjectHandle("J3_sx_TOOL2")
         
         
         #getting positions
@@ -66,39 +58,37 @@ class dVRKCopeliaVisionEnv(gym.GoalEnv):
         self.endPos.pop(0)
         
         self.startPos = self.sim.getObjectPosition(self.peg,-1)
+        startPos  = np.array(self.startPos) + np.array([0,0,0.03])
+        self.startPos = startPos.tolist()
         
         self.currentgoal =  random.sample(self.endPos, 1)[0]
         #setting goal sphere position
         self.sim.setObjectPosition(self.goalSphere,-1,self.currentgoal  )
         
-        #self.currentgoal = self.endPos[4]
-        #print('TimeStep:',self.sim.getSimulationTimeStep())
+        #workspacee boundaries
+        self.workspace_limits = [[-3.3 ,-3.1],[-1 ,1],[1.35 ,1.6]]
         
         
         print('(dVRKVREP) initialized')
 
         obs = np.inf
         act = 1
+        self.pos_vel = spaces.Box(-obs,obs,shape=(6,), dtype=np.float32);
+        self.grip_state = spaces.Box(0,1,shape=(1,), dtype=np.uint8)
+
+        self.action_space = spaces.Box(-act,act, shape = (4,))
         
-        image , b = self.sim.getVisionSensorImg(self.camera_top,0)
-        img = Image.frombytes("RGB", (250, 250), image)
-        img = np.array(img)
-        
-        print(img.shape)
-        self.action_space = spaces.Box(-act,act, shape = (3,))
-        self.observation_space = spaces.Dict(
-            dict(
-                image =  spaces.Box(0,255,shape=(img.shape[2],img.shape[0],img.shape[1]), dtype=np.uint8),
+         
+        self.observation_space = spaces.Dict(dict(
+                observation= spaces.Box(-obs,obs,shape=(7,), dtype=np.float32),
                 desired_goal= spaces.Box(-obs,obs,shape=(3,), dtype=np.float32),
                 achieved_goal= spaces.Box(-obs,obs,shape=(3,), dtype=np.float32),
-            )
-        )
+            ))
          
-        print(self.observation_space.spaces.items())
-        self.velocity = np.zeros([3])
-        self.self_observe()
         
-        self.position = self.sim.getObjectPosition(self.targetIDR,-1)
+        self.velocity = np.zeros([3])
+        self.grip_state = 0
+        self.self_observe()
  
     
     
@@ -110,12 +100,6 @@ class dVRKCopeliaVisionEnv(gym.GoalEnv):
         Helper to create the observation.
         :return: The current observation.
         """
-        #Observe Image at each Timestep
-        image , b= self.sim.getVisionSensorImg(self.camera_top,0)
-        img = Image.frombytes("RGB", (250, 250), image)
-        img = np.array(img)
-        cv2.imshow('image',img)
-        cv2.waitKey(1)
         
         
         targetpos = self.sim.getObjectPosition(self.targetIDR,-1)
@@ -126,9 +110,15 @@ class dVRKCopeliaVisionEnv(gym.GoalEnv):
             targetpos[0], targetpos[1],targetpos[2],
             ]).astype('float32')
         
-        current_state = np.append(current_pos,self.velocity)
+         
         
-        self.observation = OrderedDict([ ("observation", img ), ("achieved_goal", current_state[:3]),
+        current_state = np.append(current_pos,self.velocity)
+        current_state = np.append(current_state,self.grip_state>=0)
+         
+        peg_pos = self.sim.getObjectPosition(self.peg,-1)
+        achieved_goal_peg = np.array(peg_pos)
+         
+        self.observation = OrderedDict([ ("observation",  current_state), ("achieved_goal", achieved_goal_peg),
                 ("desired_goal", np.array(self.currentgoal))])
         
         
@@ -141,9 +131,17 @@ class dVRKCopeliaVisionEnv(gym.GoalEnv):
     
     def step(self,actions):
         
+        self.grip_state = actions[-1]
         
-        
+        if self.grip_state>=0:
+            self.sim.setJointPosition(self.gripper1R,0.2)
+            self.sim.setJointPosition(self.gripper2R,0.2)
+        else :
+            self.sim.setJointPosition(self.gripper1R,0)
+            self.sim.setJointPosition(self.gripper2R,0)
+            
         actions = np.clip(actions, self.action_space.low, self.action_space.high)
+        actions = actions[:-1]
         
         scaling_factor = 0.005
         
@@ -152,20 +150,22 @@ class dVRKCopeliaVisionEnv(gym.GoalEnv):
         self.velocity = np.array( (actions*scaling_factor) / dt )
         
     
-        finalpos = self.position + actions*scaling_factor
+        finalpos = self.observation['observation'][:3] + actions*scaling_factor
         
-        
-        
+         
         # step
         stat = self.sim.setObjectPosition(self.targetIDR,-1,finalpos.tolist())
         
-        self.position = finalpos
+        
+        
+        
         
         # observe again
         self.self_observe()
 
         #Calculating reward
-        dist_goal = np.linalg.norm(np.array(finalpos) - np.array(self.currentgoal))
+        peg_pos = self.observation['achieved_goal']
+        dist_goal = np.linalg.norm(np.array(peg_pos) - np.array(self.currentgoal))
         
         
         reward = -1 if dist_goal>self.distance_threshold else 0
@@ -180,19 +180,30 @@ class dVRKCopeliaVisionEnv(gym.GoalEnv):
             done = True
             if dist_goal<self.distance_threshold:
                 print('Goal Achieved!!')
-                
-                #Random Sampling of Goal
-                # self.currentgoal = random.sample(self.endPos,1)
+                 
                
         else :
             done = False
              
-        if not (self.position[0]>-3.3 and self.position[0]<-3.1 and self.position[1]>-1 and self.position[1]<1 and self.position[2]>1.35 and self.position[2]<1.6):
-            reward = self.num_steps - self.max_steps-1
+        
+        
+        if not (self.observation['observation'][0]>-3.3 and self.observation['observation'][0]<-3.1 and self.observation['observation'][1]>-1 and self.observation['observation'][1]<1 and self.observation['observation'][2]>1.35 and self.observation['observation'][2]<1.6):
+            reward = self.num_steps - self.max_steps -1
             #print(self.num_steps)
             done=True
-          
+        
          
+        #when gripper reaches boundary
+        # position = self.observation['observation'].copy()
+        
+        # position[0] = min(max(position[0],self.workspace_limits[0][0]),self.workspace_limits[0][1])
+        # position[1] = min(max(position[1],self.workspace_limits[1][0]),self.workspace_limits[1][1])
+        # position[2] = min(max(position[2],self.workspace_limits[2][0]),self.workspace_limits[2][1])
+        
+        # print(position)
+        # self.observation['observation'] = position.copy()
+        
+        
         return self.observation, reward, done, {}
 
     def render(self):
@@ -223,9 +234,6 @@ class dVRKCopeliaVisionEnv(gym.GoalEnv):
         
         self.self_observe()
         
-        self.position = self.sim.getObjectPosition(self.targetIDR,-1)
- 
-        
         return self.observation
 
      
@@ -243,10 +251,10 @@ class dVRKCopeliaVisionEnv(gym.GoalEnv):
 
 print(__name__)
 if __name__ == '__main__':
-    env = dVRKCopeliaVisionEnv()
+    env = dVRKCopeliaPicknPlaceEnv()
     
     done = None
-    for k in range(10):
+    for k in range(3):
         
         done = False
         print('This is epidode',k)

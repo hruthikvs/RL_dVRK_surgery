@@ -18,7 +18,7 @@ MAX_EP_LEN = 100
 
 env = dVRKCopeliaEnv(maxsteps=MAX_EP_LEN)
 
-model = model_class.load('ddpg_dVRK', env=env)
+model = model_class.load('models/DDPG_HER-1666089129/100000.zip', env=env)
 
 obs = env.reset()
 while True:

@@ -39,7 +39,7 @@ action_noise = NormalActionNoise(mean=np.zeros(n_actions), sigma=0.01 * np.ones(
 
 
 
-model = DDPG("MultiInputPolicy",env, buffer_size=100000, replay_buffer_class=HerReplayBuffer,
+model = DDPG("MultiInputPolicy",env, buffer_size=1000000, replay_buffer_class=HerReplayBuffer,
              replay_buffer_kwargs=dict(
         n_sampled_goal=4,
         goal_selection_strategy=goal_selection_strategy,
@@ -54,8 +54,8 @@ model = DDPG("MultiInputPolicy",env, buffer_size=100000, replay_buffer_class=Her
 
 
 #epochs 
-TIMESTEPS = 1000
-for i in range(1,50):
+TIMESTEPS = 10000
+for i in range(1,100):
     model.learn(total_timesteps=TIMESTEPS, reset_num_timesteps=False, log_interval=1,tb_log_name='DDPG_HER')    #model reset set to false: prevent model reset for every learn
     model.save(f"{models_dir}/{TIMESTEPS*i}")
 env = model.get_env()

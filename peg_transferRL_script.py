@@ -58,8 +58,8 @@ class dVRKCopeliaEnv(gym.GoalEnv):
         #setting goal sphere position
         self.sim.setObjectPosition(self.goalSphere,-1,self.currentgoal  )
         
-        #self.currentgoal = self.endPos[4]
-        #print('TimeStep:',self.sim.getSimulationTimeStep())
+        #workspacee boundaries
+        self.workspace_limits = [[-3.3 ,-3.1],[-1 ,1],[1.35 ,1.6]]
         
         
         print('(dVRKVREP) initialized')
@@ -159,12 +159,25 @@ class dVRKCopeliaEnv(gym.GoalEnv):
         else :
             done = False
              
+        
+        
         if not (self.observation['observation'][0]>-3.3 and self.observation['observation'][0]<-3.1 and self.observation['observation'][1]>-1 and self.observation['observation'][1]<1 and self.observation['observation'][2]>1.35 and self.observation['observation'][2]<1.6):
             reward = self.num_steps - self.max_steps -1
             #print(self.num_steps)
             done=True
-          
-        #print(reward) 
+        
+         
+        #when gripper reaches boundary
+        # position = self.observation['observation'].copy()
+        
+        # position[0] = min(max(position[0],self.workspace_limits[0][0]),self.workspace_limits[0][1])
+        # position[1] = min(max(position[1],self.workspace_limits[1][0]),self.workspace_limits[1][1])
+        # position[2] = min(max(position[2],self.workspace_limits[2][0]),self.workspace_limits[2][1])
+        
+        # print(position)
+        # self.observation['observation'] = position.copy()
+        
+        
         return self.observation, reward, done, {}
 
     def render(self):
