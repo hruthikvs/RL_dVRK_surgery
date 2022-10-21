@@ -84,17 +84,19 @@ class dVRKCopeliaVisionEnv(gym.GoalEnv):
         img = Image.frombytes("RGB", (250, 250), image)
         img = np.array(img)
         
-        print(img.shape)
+        
+        
+        
         self.action_space = spaces.Box(-act,act, shape = (3,))
         self.observation_space = spaces.Dict(
             dict(
-                image =  spaces.Box(0,255,shape=(img.shape[2],img.shape[0],img.shape[1]), dtype=np.uint8),
+                observation =  spaces.Box(0,255,shape=(img.shape[2],img.shape[0],img.shape[1]), dtype=np.uint8),
                 desired_goal= spaces.Box(-obs,obs,shape=(3,), dtype=np.float32),
                 achieved_goal= spaces.Box(-obs,obs,shape=(3,), dtype=np.float32),
             )
         )
+        print(np.shape(self.observation_space['observation'])) 
          
-        print(self.observation_space.spaces.items())
         self.velocity = np.zeros([3])
         self.self_observe()
         
@@ -116,7 +118,8 @@ class dVRKCopeliaVisionEnv(gym.GoalEnv):
         img = np.array(img)
         cv2.imshow('image',img)
         cv2.waitKey(1)
-        
+        #reshaping Image
+        img = np.moveaxis(img, -1, 0)
         
         targetpos = self.sim.getObjectPosition(self.targetIDR,-1)
         
@@ -127,7 +130,7 @@ class dVRKCopeliaVisionEnv(gym.GoalEnv):
             ]).astype('float32')
         
         current_state = np.append(current_pos,self.velocity)
-        
+         
         self.observation = OrderedDict([ ("observation", img ), ("achieved_goal", current_state[:3]),
                 ("desired_goal", np.array(self.currentgoal))])
         
