@@ -15,7 +15,7 @@ from gym import spaces
 class dVRKCopeliaEnv(gym.GoalEnv):
     def __init__(self,maxsteps=100):
         
-        self.distance_threshold = 0.02
+        self.distance_threshold = 0.04  
         
         
         self.max_steps = maxsteps 
@@ -100,6 +100,11 @@ class dVRKCopeliaEnv(gym.GoalEnv):
         
         current_state = np.concatenate((current_pos, self.velocity, pushCube_pos, pushCube_vel), axis=0)
         
+        
+        print('end eff pos=',current_pos)
+        print('cube pos=',pushCube_pos)
+        
+        
         self.observation = OrderedDict([ ("observation",  current_state), ("achieved_goal", pushCube_pos[:3]),
                 ("desired_goal", np.array(self.currentgoal))])
         
@@ -127,7 +132,6 @@ class dVRKCopeliaEnv(gym.GoalEnv):
     
         finalpos = self.observation['observation'][:3] + action_vec
         
-        print('final pos=',finalpos)
         
         print('action=',actions)
         
@@ -137,9 +141,13 @@ class dVRKCopeliaEnv(gym.GoalEnv):
         
         # observe again
         self.self_observe()
-        print(self.observation)
+         
+        
+        #Getting cube position 
+        pushCube_pos = self.observation['achieved_goal']
+        
         #Calculating reward
-        dist_goal = np.linalg.norm(np.array(finalpos) - np.array(self.currentgoal))
+        dist_goal = np.linalg.norm(pushCube_pos[:2] - np.array(self.currentgoal)[:2])
         
         
         reward = -1 if dist_goal>self.distance_threshold else 0
@@ -227,10 +235,10 @@ class dVRKCopeliaEnv(gym.GoalEnv):
 
 print(__name__)
 if __name__ == '__main__':
-    env = dVRKCopeliaEnv()
+    env = dVRKCopeliaEnv(maxsteps=300)
     
     done = None
-    for k in range(1):
+    for k in range(10):
         
         done = False
         print('This is epidode',k)
