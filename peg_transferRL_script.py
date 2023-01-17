@@ -38,6 +38,10 @@ class dVRKCopeliaEnv(gym.GoalEnv):
         self.peg = self.sim.getObjectHandle("/Peg")
         self.goalSphere = self.sim.getObjectHandle("/Goal")
         
+        # #camera handle
+        # self.camera_side = self.sim.getObjectHandle("/Vision_sensor_side")
+        # self.camera_top = self.sim.getObjectHandle("/Vision_sensor_left")
+        
         #getting positions
         self.cylinder = []
         self.endPos = []
