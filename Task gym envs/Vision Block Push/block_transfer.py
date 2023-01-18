@@ -44,7 +44,7 @@ class dVRKCopeliaEnv(gym.GoalEnv):
         #self.endPos.pop(0)
         #-3.224,0.053,1.3968e+00
         
-        self.startPos = [-3.224,0.053,1.3968] # setting start position as redCube
+        self.startPos = [-3.17,0.08,1.3968] # setting start position as redCube
         
         self.currentgoal =  goal_pos
         #setting goalCube position

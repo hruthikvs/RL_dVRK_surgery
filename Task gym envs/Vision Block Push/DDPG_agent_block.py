@@ -34,7 +34,7 @@ max_episode_length = MAX_EP_LEN
 
 # The noise objects for DDPG
 n_actions = env.action_space.shape[-1]
-action_noise = NormalActionNoise(mean=np.zeros(n_actions), sigma=0.01 * np.ones(n_actions))
+action_noise = NormalActionNoise(mean=np.zeros(n_actions), sigma=0.02 * np.ones(n_actions))
 
 
 
