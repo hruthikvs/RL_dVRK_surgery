@@ -77,19 +77,27 @@ class dVRKBlockVisionEnv(gym.GoalEnv):
         # and color format is RGB triplets, whereas OpenCV uses BGR:
         img = cv2.flip(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), 0)
         img = cv2.resize(img,(100,100))
-        print(img.shape)
+        
         #Converting to GrayScale
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
         # cv2.imshow('', img)
         # cv2.waitKey(0)
         
         
+        
+        self.frame_stack_len = 3
+        self.frame_stack = []
+        for i in range(self.frame_stack_len):
+            self.frame_stack.append(np.zeros([100,100]))
+        
+        self.frame_stack.pop(0)
+        self.frame_stack.append(img)
          
-         
+        
         self.action_space = spaces.Box(-act,act, shape = (2,))
         self.observation_space = spaces.Dict(
             dict(
-                observation= spaces.Box(0,255,shape=(img.shape[2],img.shape[0],img.shape[1]), dtype=np.uint8),
+                observation= spaces.Box(0,255,shape=(self.frame_stack_len,img.shape[0],img.shape[1]), dtype=np.uint8),
                 desired_goal= spaces.Box(-obs,obs,shape=(3,), dtype=np.float32),
                 achieved_goal= spaces.Box(-obs,obs,shape=(3,), dtype=np.float32),
             )
@@ -129,10 +137,25 @@ class dVRKBlockVisionEnv(gym.GoalEnv):
         # and color format is RGB triplets, whereas OpenCV uses BGR:
         img = cv2.flip(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), 0)
         img = cv2.resize(img,(100,100))
+        img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+        
+        
+        cv2.imshow('', img)
+        cv2.waitKey(1)
+        
+        self.frame_stack.pop(0)
+        self.frame_stack.append(img)
+         
+        
+        img = np.array(self.frame_stack).transpose((1, -1, 0))
+        
         # cv2.imshow('', img)
         # cv2.waitKey(1)
-        img = img.transpose((-1, 0, 1))
+        img = np.array(self.frame_stack)
         
+        
+        
+    
         
         
         
