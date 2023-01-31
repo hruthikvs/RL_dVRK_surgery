@@ -140,8 +140,6 @@ class dVRKBlockVisionEnv(gym.GoalEnv):
         img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
         
         
-        cv2.imshow('', img)
-        cv2.waitKey(1)
         
         self.frame_stack.pop(0)
         self.frame_stack.append(img)
