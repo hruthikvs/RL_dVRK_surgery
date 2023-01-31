@@ -232,7 +232,7 @@ if __name__ == '__main__':
     env = dVRKCopeliaEnv()
     
     done = None
-    for k in range(1):
+    for k in range(10):
         
         done = False
         print('This is epidode',k)

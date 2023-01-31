@@ -41,7 +41,7 @@ class dVRKCopeliaVisionEnv(gym.GoalEnv):
         self.goalSphere = self.sim.getObjectHandle("/Goal")
         
         #camera handle
-        self.camera_side = self.sim.getObjectHandle("/Vision_sensor_side")
+        #self.camera_side = self.sim.getObjectHandle("/Vision_sensor_side")
         self.camera_top = self.sim.getObjectHandle("/Vision_sensor_left")
         
         #getting positions
@@ -85,6 +85,8 @@ class dVRKCopeliaVisionEnv(gym.GoalEnv):
             dict(
                 #shape=D,H,W
                 observation= spaces.Box(0,255,shape=(img.shape[2],img.shape[0],img.shape[1]), dtype=np.uint8),
+                #change
+                observation2= spaces.Box(-obs,obs,shape=(6,), dtype=np.float32) ,
                 desired_goal= spaces.Box(-obs,obs,shape=(3,), dtype=np.float32),
                 achieved_goal= spaces.Box(-obs,obs,shape=(3,), dtype=np.float32),
             )
@@ -124,7 +126,8 @@ class dVRKCopeliaVisionEnv(gym.GoalEnv):
         
         current_state = np.append(current_pos,self.velocity)
         
-        self.observation = OrderedDict([ ("observation",  img), ("achieved_goal", current_state[:3]),
+         #change
+        self.observation = OrderedDict([ ("observation",  img), ("observation2",  current_state),("achieved_goal", current_state[:3]),
                 ("desired_goal", np.array(self.currentgoal))])
         
         
