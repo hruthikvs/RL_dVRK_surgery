@@ -41,8 +41,8 @@ max_episode_length = MAX_EP_LEN
 
 # The noise objects for DDPG
 print(env.action_space)
-n_actions = env.action_space.shape[-1]
-action_noise = NormalActionNoise(mean=np.zeros(n_actions), sigma=0.01 * np.ones(n_actions))
+#n_actions = env.action_space.shape[-1]
+#action_noise = NormalActionNoise(mean=np.zeros(n_actions), sigma=0.01 * np.ones(n_actions))
 
 
 
@@ -52,8 +52,7 @@ model = DDPG("MultiInputPolicy",env, buffer_size=1000000, replay_buffer_class=He
         n_sampled_goal=4,
         goal_selection_strategy=goal_selection_strategy,
         online_sampling=online_sampling,
-        max_episode_length=max_episode_length,) 
-        ,action_noise=action_noise,
+        max_episode_length=max_episode_length,),
              verbose=1, 
              tensorboard_log= logdir)
 

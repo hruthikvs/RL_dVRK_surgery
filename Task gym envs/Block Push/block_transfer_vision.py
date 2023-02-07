@@ -144,9 +144,8 @@ class dVRKBlockVisionEnv(gym.GoalEnv):
         self.frame_stack.pop(0)
         self.frame_stack.append(img)
          
-        
-        img = np.array(self.frame_stack).transpose((1, -1, 0))
-        
+        # Display Image
+        # img = np.array(self.frame_stack).transpose((1, -1, 0))
         # cv2.imshow('', img)
         # cv2.waitKey(1)
         img = np.array(self.frame_stack)

@@ -75,16 +75,18 @@ class dVRKCopeliaPicknPlaceEnv(gym.GoalEnv):
         act = 1
         self.pos_vel = spaces.Box(-obs,obs,shape=(6,), dtype=np.float32);
         self.grip_state = spaces.Box(0,1,shape=(1,), dtype=np.uint8)
-
-        self.action_space = spaces.Box(-act,act, shape = (4,))
+        
+        self.action_space = spaces.Tuple((spaces.Discrete(2), spaces.Box(-act, act, shape=(3,))))
+         
         
          
         self.observation_space = spaces.Dict(dict(
-                observation= spaces.Box(-obs,obs,shape=(7,), dtype=np.float32),
+                observation= spaces.Box(-obs,obs,shape=(6,), dtype=np.float32),
+                observation2= spaces.Discrete(2),
                 desired_goal= spaces.Box(-obs,obs,shape=(3,), dtype=np.float32),
                 achieved_goal= spaces.Box(-obs,obs,shape=(3,), dtype=np.float32),
             ))
-         
+    
         
         self.velocity = np.zeros([3])
         self.grip_state = 0
@@ -118,7 +120,7 @@ class dVRKCopeliaPicknPlaceEnv(gym.GoalEnv):
         peg_pos = self.sim.getObjectPosition(self.peg,-1)
         achieved_goal_peg = np.array(peg_pos)
          
-        self.observation = OrderedDict([ ("observation",  current_state), ("achieved_goal", achieved_goal_peg),
+        self.observation = OrderedDict([ ("observation",  current_state),("observation",  current_state), ("achieved_goal", achieved_goal_peg),
                 ("desired_goal", np.array(self.currentgoal))])
         
         
@@ -131,23 +133,25 @@ class dVRKCopeliaPicknPlaceEnv(gym.GoalEnv):
     
     def step(self,actions):
         
-        self.grip_state = actions[-1]
+        self.grip_state = actions[0]
         
-        if self.grip_state>=0:
+        
+        if self.grip_state==1:
             self.sim.setJointPosition(self.gripper1R,0.2)
             self.sim.setJointPosition(self.gripper2R,0.2)
         else :
             self.sim.setJointPosition(self.gripper1R,0)
             self.sim.setJointPosition(self.gripper2R,0)
-            
-        actions = np.clip(actions, self.action_space.low, self.action_space.high)
-        actions = actions[:-1]
+         
+        print(actions[1])
+        actions = np.clip(actions[1], self.action_space[1].low, self.action_space[1].high)
+        
         
         scaling_factor = 0.005
         
         #Calculating velocity
-        dt = self.sim.getSimulationTimeStep()
-        self.velocity = np.array( (actions*scaling_factor) / dt )
+         
+        self.velocity = np.array( (actions*scaling_factor))
         
     
         finalpos = self.observation['observation'][:3] + actions*scaling_factor
@@ -155,8 +159,6 @@ class dVRKCopeliaPicknPlaceEnv(gym.GoalEnv):
          
         # step
         stat = self.sim.setObjectPosition(self.targetIDR,-1,finalpos.tolist())
-        
-        
         
         
         
