@@ -48,14 +48,13 @@ action_noise = NormalActionNoise(mean=np.zeros(n_actions), sigma=0.05 * np.ones(
 
 
 
-model = DDPG("MultiInputPolicy",env, buffer_size=10000, replay_buffer_class=HerReplayBuffer,
+model = DDPG("MultiInputPolicy",env, buffer_size=50000, replay_buffer_class=HerReplayBuffer,
              replay_buffer_kwargs=dict(
         n_sampled_goal=4,
         goal_selection_strategy=goal_selection_strategy,
         online_sampling=online_sampling,
         max_episode_length=max_episode_length,) 
-        ,action_noise=action_noise,
-             verbose=1, 
+        ,action_noise=action_noise, 
              tensorboard_log= logdir)
 
 

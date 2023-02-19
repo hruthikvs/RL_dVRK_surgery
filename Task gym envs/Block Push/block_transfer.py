@@ -7,7 +7,8 @@ from zmqRemoteApi import RemoteAPIClient
 import sys
 MAX_INT = sys.maxsize
 
-
+import os
+import pandas as pd
 import gym
 import gym.spaces 
 from gym import spaces 
@@ -15,7 +16,7 @@ from gym import spaces
 class dVRKCopeliaEnv(gym.GoalEnv):
     def __init__(self,maxsteps=100):
         
-        self.distance_threshold = 0.04  
+        self.distance_threshold = 0.03  
         
         
         self.max_steps = maxsteps 
@@ -46,6 +47,8 @@ class dVRKCopeliaEnv(gym.GoalEnv):
         
         self.startPos = [-3.17,0.08,1.3968] # setting start position as redCube
         
+        self.currentstart = self.startPos
+        
         self.currentgoal =  goal_pos
         #setting goalCube position
         #self.sim.setObjectPosition(self.goalCube,-1,self.currentgoal)
@@ -70,6 +73,19 @@ class dVRKCopeliaEnv(gym.GoalEnv):
          
         self.velocity = np.zeros([3])
         self.self_observe()
+        
+        
+        ''' csv Save '''
+        
+        self.timestr = time.strftime("%Y_%m_%d-%H_%M_%S")
+ 
+        self.df = pd.DataFrame()
+         
+        self.action_arr = []
+        self.points_arr = []
+        self.ep_len = 0
+        self.ep_reward = 0
+        self.trajectory_len =0
  
     
     
@@ -187,6 +203,41 @@ class dVRKCopeliaEnv(gym.GoalEnv):
         # print(position)
         # self.observation['observation'] = position.copy()
         
+        '''Save to CSV : Code to save the parameters into a CSV file for graphing'''  
+        
+        
+        self.action_arr.append(list(actions))
+        self.points_arr.append(list(self.observation['observation'][0:3]))
+        self.trajectory_len += np.linalg.norm(action_vec)
+        self.ep_reward += reward
+         
+        
+        if done:
+            
+            timestr2 = time.strftime("%Y_%m_%d-%H_%M_%S")
+            file_path = f"csv_save/"
+            
+            if not os.path.exists(file_path):
+                os.makedirs(file_path)
+                
+                
+            file_name = 'wrapper_reset_train'+'_'+self.timestr+'.csv'
+            
+            
+            savepath=os.path.join(file_path,file_name)
+            
+            df = self.df
+            df = df.append({'timestamp':timestr2, 'start_point':self.currentstart, 'goal_point':self.currentgoal,
+                            'total_step':self.num_steps, 'action':self.action_arr, 
+                            'path_points':self.points_arr,'trajectory_len':self.trajectory_len,
+                            'ep_reward':self.ep_reward, 'goal_reached':reward==0 },
+                           ignore_index=True)
+         
+            if os.path.exists(savepath):
+                df.to_csv(savepath,mode='a',header=False)
+            else:
+                df.to_csv(savepath,mode='a',header=True)
+        
         
         return self.observation, reward, done, {}
 
@@ -217,6 +268,15 @@ class dVRKCopeliaEnv(gym.GoalEnv):
         self.num_steps = 0  
         
         self.self_observe()
+        
+        '''CSV saving'''
+        
+         
+        self.action_arr = []
+        self.points_arr = []
+        self.ep_len = 0
+        self.ep_reward = 0
+        self.trajectory_len = 0
         
         return self.observation
 

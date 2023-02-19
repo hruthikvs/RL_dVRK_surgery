@@ -39,7 +39,7 @@ max_episode_length = MAX_EP_LEN
 
 
 
-model = model_class("CnnPolicy", env, buffer_size=10000, verbose=1, tensorboard_log= logdir)
+model = model_class("CnnPolicy", env, buffer_size=50000, verbose=1, tensorboard_log= logdir)
 
 
  

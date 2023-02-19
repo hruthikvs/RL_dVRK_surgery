@@ -76,7 +76,8 @@ class dVRKBlockVisionEnv(gym.GoalEnv):
         # (consistent with the axes of vision sensors, pointing Z outwards, Y up)
         # and color format is RGB triplets, whereas OpenCV uses BGR:
         img = cv2.flip(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), 0)
-        img = cv2.resize(img,(100,100))
+        self.H,self.W = 84,84
+        img = cv2.resize(img,(self.H,self.W))
         
         #Converting to GrayScale
         img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
@@ -88,7 +89,7 @@ class dVRKBlockVisionEnv(gym.GoalEnv):
         self.frame_stack_len = 3
         self.frame_stack = []
         for i in range(self.frame_stack_len):
-            self.frame_stack.append(np.zeros([100,100]))
+            self.frame_stack.append(np.zeros([self.H,self.W]))
         
         self.frame_stack.pop(0)
         self.frame_stack.append(img)
@@ -136,7 +137,7 @@ class dVRKBlockVisionEnv(gym.GoalEnv):
         # (consistent with the axes of vision sensors, pointing Z outwards, Y up)
         # and color format is RGB triplets, whereas OpenCV uses BGR:
         img = cv2.flip(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), 0)
-        img = cv2.resize(img,(100,100))
+        img = cv2.resize(img,(self.H,self.W))
         img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
         
         

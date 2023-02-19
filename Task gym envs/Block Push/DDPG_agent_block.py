@@ -25,7 +25,7 @@ if not os.path.exists(logdir):
 
 env = dVRKCopeliaEnv(maxsteps=MAX_EP_LEN)
 # Available strategies (cf paper): future, final, episode
-goal_selection_strategy = 'future' # equivalent to GoalSelectionStrategy.FUTURE
+goal_selection_strategy = 'episode' # equivalent to GoalSelectionStrategy.FUTURE
 # If True the HER transitions will get sampled online
 online_sampling = True
 # Time limit for the episodes
