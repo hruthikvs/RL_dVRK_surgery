@@ -216,8 +216,9 @@ class dVRKCopeliaPicknPlaceEnv(gym.GoalEnv):
         self.sim.stopSimulation()
         print('end')
         
-        #TODO
-        time.sleep(0.2)
+        #to make sure we really stopped:
+        while self.sim.getSimulationState() != self.sim.simulation_stopped:
+            time.sleep(0.01);
         
         
         #start Simulation 
