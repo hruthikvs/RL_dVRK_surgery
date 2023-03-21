@@ -48,7 +48,7 @@ To run our algorithms and implementations, follow the below steps:
 3. From the *Task_envs* folder select the respective folders
     
     * The `dVRK_peg_transfer.ttt` environment can be run using Multi-Goal Reach Task, Pick and Place Task (*TODO) and 3D Vision Task (*TODO)
-    * The `block.ttt` or `block_small.ttt` can be run using the Task controllers present in the `RL_Coordinates_based/Block push fixed goal` folder as well as the `RL_Vision_based` folder.  These envrionments consists of a small sized peg board with a pixed goal location at one corner indicated by a green block.
+    * The `block.ttt` or `block_small.ttt` can be run using the Task controllers present in the `RL_Coordinates_based/Block push fixed goal` folder as well as the `RL_Vision_based` folder.  These envrionments consists of a small sized peg board with a fixed goal location at one corner indicated by a green block.
     * The `block_randomise.ttt` environment can be run using the Task controllers present in the `RL_Coordinates_based/Block push randomise` folder. This environment supports randomisation of the initial push block (red) position as well as the goal block (green) position.
     * The `block_randomise_vision.ttt`  environment can be run using the Task controllers present in the `RL_Vision_based`. This environment contains a larger peg board, increasing task complexity, and a wider field of view camera to feed images to the Vision based model.
 
