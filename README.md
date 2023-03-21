@@ -19,98 +19,32 @@ https://user-images.githubusercontent.com/52667241/222405809-d6c34a8f-68e3-4dd0-
 
 
 
-## Instructions
-Install MuJoCo 2.1 if it is not already the case (please refer to [https://github.com/deepmind/dm_control](https://github.com/deepmind/dm_control). 
-
-Create conda environment
-```
-conda create -n visualrl -f conda_env.yml
-```
-
-Run the code
-```
-conda activate visualrl
-python src/train.py  --agent drq  --domain_name cheetah  --task_name run
-```
-
  
-# Robotic Pick-and-Place of Novel Objects in Clutter
-
-This repository contains implementations for the major components of robot perception as part of MIT-Princeton's 1st place winning entry for the stow task at the [Amazon Robotics Challenge](https://www.amazonrobotics.com/#/roboticschallenge) 2017. Featuring:
-
-* [Suction-Based Grasping](#suction-based-grasping) - a Torch implementation of fully convolutional neural networks (FCNs) for directly predicting suction-based grasping affordances from RGB-D images.
-    * [Baseline Algorithm](#baseline-algorithm) - a Matlab implementation of a baseline algorithm that predicts suction-based grasping affordances by computing the variance of surface normals of a 3D point cloud (projected from RGB-D images), where lower variance = higher affordance.
-* [Parallel-Jaw Grasping](#parallel-jaw-grasping) - a Torch implementation of fully convolutional neural networks (FCNs) for directly predicting parallel-jaw grasping affordances from heightmaps (created from RGB-D images).
-    * [Baseline Algorithm](#baseline-algorithm-1) - a Matlab implementation of a baseline algorithm for detecting anti-podal parallel-jaw grasps by detecting "hill-like" geometric stuctures over a 3D point cloud (projected from RGB-D images).
-* [Image Matching](#image-matching) - a Torch implementation of two-stream convolutional neural networks for matching observed images of grasped objects to their product images for recognition.
-
-<div align="center">
-<img src="https://github.com/andyzeng/arc-robot-vision/raw/master/images/robot.jpg" height="230px" width="307px">
-<img src="https://github.com/andyzeng/arc-robot-vision/raw/master/images/grasping.gif" height="230px" width="258px">
-<img src="https://github.com/andyzeng/arc-robot-vision/raw/master/images/recognition.jpg" height="230px" width="258px">
-</div>
-
-For more information about our approach, please visit our [project webpage](http://arc.cs.princeton.edu/) and check out our [paper](https://arxiv.org/pdf/1710.01330.pdf):
-
-### Robotic Pick-and-Place of Novel Objects in Clutter with Multi-Affordance Grasping and Cross-Domain Image Matching ( [pdf](https://arxiv.org/pdf/1710.01330.pdf) | [arxiv](https://arxiv.org/abs/1710.01330) | [webpage](http://arc.cs.princeton.edu/) )
-
-*[Andy Zeng](http://andyzeng.com), [Shuran Song](http://vision.princeton.edu/people/shurans/), [Kuan-Ting Yu](http://people.csail.mit.edu/peterkty/), [Elliott Donlon](https://www.linkedin.com/in/elliott-donlon-238601a3), [Francois R. Hogan](https://www.linkedin.com/in/francois-hogan-2b4025b6/), [Maria Bauza](http://web.mit.edu/bauza/www/), Daolin Ma, Orion Taylor, [Melody Liu](https://melodygl.wordpress.com/), Eudald Romo, [Nima Fazeli](http://nfazeli.mit.edu/), [Ferran Alet](http://web.mit.edu/alet/www/), [Nikhil Chavan Dafle](https://nikhilcd.mit.edu/), [Rachel Holladay](http://people.csail.mit.edu/rholladay/), Isabella Morona, [Prem Qu Nair](http://premqunair.com/), Druck Green, Ian Taylor, Weber Liu, [Thomas Funkhouser](http://www.cs.princeton.edu/~funk/), [Alberto Rodriguez](http://meche.mit.edu/people/faculty/ALBERTOR@MIT.EDU)*
-
-IEEE International Conference on Robotics and Automation (ICRA) 2018
-
-**Abstract** This paper presents a robotic pick-and-place system that is capable of grasping and recognizing both known and novel objects in cluttered environments. The key new feature of the system is that it handles a wide range of object categories without needing any task-specific training data for novel objects. To achieve this, it first uses a category-agnostic affordance prediction algorithm to select among four different grasping primitive behaviors. It then recognizes picked objects with a cross-domain image classification framework that matches observed images to product images. Since product images are readily available for a wide range of objects (e.g., from the web), the system works out-of-the-box for novel objects without requiring any additional training data. Exhaustive experimental results demonstrate that our multi-affordance grasping achieves high success rates for a wide variety of objects in clutter, and our recognition algorithm achieves high accuracy for both known and novel grasped objects. The approach was part of the MIT-Princeton Team system that took 1st place in the stowing task at 2017 [Amazon Robotics Challenge](https://www.amazonrobotics.com/#/roboticschallenge).
-
-#### Citing
-
-If you find this code useful in your work, please consider citing:
-
-```bash
-@article{zeng2018robotic, 
-	title={Robotic Pick-and-Place of Novel Objects in Clutter with Multi-Affordance Grasping and Cross-Domain Image Matching}, 
-	author={Zeng, Andy and Song, Shuran and Yu, Kuan-Ting and Donlon, Elliott and Hogan, Francois Robert and Bauza, Maria and Ma, Daolin and Taylor, Orion and Liu, Melody and Romo, Eudald and Fazeli, Nima and Alet, Ferran and Dafle, Nikhil Chavan and Holladay, Rachel and Morona, Isabella and Nair, Prem Qu and Green, Druck and Taylor, Ian and Liu, Weber and Funkhouser, Thomas and Rodriguez, Alberto}, 
-	booktitle={Proceedings of the IEEE International Conference on Robotics and Automation}, 
-	year={2018} 
-}
-```
-
-#### License
-This code is released under the Apache License v2.0 (refer to the [LICENSE](LICENSE) file for details).
-
-#### Datasets
-Information and download links for our grasping dataset and image matching dataset can be found on our [project webpage](http://vision.princeton.edu/projects/2017/arc/#datasets).
-
-#### Contact
-If you have any questions or find any bugs, please let me know: [Andy Zeng](http://www.cs.princeton.edu/~andyz/) andyz[at]princeton[dot]edu
-
-## Change Log
-* **Nov. 16, 2017.** Fix: added `require 'util'` to `DataLoader.lua`.
-
+ 
 # Requirements and Dependencies
 
-* NVIDIA GPU with compute capability 3.5+
-* [Torch](http://torch.ch/) with packages: [image](https://github.com/torch/image), [optim](https://github.com/torch/optim), [inn](https://github.com/szagoruyko/imagine-nn), [cutorch](https://github.com/torch/cutorch), [cunn](https://github.com/torch/cunn), [cudnn](https://github.com/soumith/cudnn.torch), [hdf5](https://github.com/deepmind/torch-hdf5)
-* [Matlab](https://www.mathworks.com/products/matlab.html) 2015b or later
+* NVIDIA GPU 
+* [Torch](http://torch.ch/)   
+* [Gym](https://github.com/openai/gym) Version 0.21.0
+* [Stable Baselines3](https://stable-baselines3.readthedocs.io/en/master/guide/install.html) 
+* [CopeliaSim Surgical Simulator](https://www.coppeliarobotics.com/downloads)
 
-Our implementations have been tested on Ubuntu 16.04 with an NVIDIA Titan X. Our full pick-and-place system implementation (outside the scope of this repository) uses a lightweight C++ ROS service as a wrapper to control Torch/Lua and Matlab processes via TCP sockets. Data is shared between the processes by reading and writing from RAMDisk.
+Note: All python installations are done using pip on Anaconda environment
 
-# Suction-Based Grasping
+Our implementations have been tested on Windows 10 with an NVIDIA Quadro P600 GPU. 
 
-A Torch implementation of fully convolutional neural networks for predicting pixel-level affordances (here higher values indicate better surface locations for grasping with suction) given an RGB-D image as input.
-
-![suction-based-grasping](images/suction-based-grasping.jpg?raw=true)
 
 ## Quick Start
 
-To run our pre-trained model to get pixel-level affordances for grasping with suction:
+To run our algorithms and implementations, follow the below steps:
 
-1. Clone this repository and navigate to `arc-robot-vision/suction-based-grasping/convnet`
+1. Clone this repository 
 
     ```bash
-    git clone https://github.com/andyzeng/arc-robot-vision.git
-    cd arc-robot-vision/suction-based-grasping/convnet
+    git clone https://github.com/hruthikvs/RL_dVRK_surgery.git
     ```
 
-2. Download our pre-trained model for suction-based grasping:
+2. Launch the required Copelia Environment 
 
     ```bash
     wget http://vision.princeton.edu/projects/2017/arc/downloads/suction-based-grasping-snapshot-10001.t7
