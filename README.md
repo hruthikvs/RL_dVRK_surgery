@@ -1,17 +1,3 @@
-# RL_dVRK_surgery
-This repository consists of my Dual Degree Project: 
-### Autonomous Medical Surgery Robot 
-
-#### Files include:
-1. CopeliaSim environment of a da Vinci Research Kit (dVRK) robot 
-2. python API script to control the robot using Reinforcement Learning.  
-
-
-https://user-images.githubusercontent.com/52667241/222405809-d6c34a8f-68e3-4dd0-aa60-57d91778bab8.mp4 
-
-
-
-
 # Deep Reinforcement Learning for Autonomous Laparoscopic Surgery
 
 This repository contains my Dual Degree Project work as part of my IDDD (Inter-Disciplinary Dual Degree) Programme in IIT Madras, India. Experiments are performed on the [da Vinci Research Kit Surgical Robot](https://www.intuitive-foundation.org/dvrk/) on the CopeliaSim Robotics Simulator. 
@@ -29,6 +15,7 @@ This repository contains my Dual Degree Project work as part of my IDDD (Inter-D
     * [Using Simulator Coordinates](#baseline-algorithm) - To push the block from a given start to goal position using the coordinates of the block, end effector, and goal which are taken from the simulator
     * [End-to-End Image Based Training](#end-to-end-image) - To push the block from a given start to goal position by training directly on Images from an endoscopic camera. This is done by using a CNN feature extraction pipeline attached to the RL algorithm.
 
+https://user-images.githubusercontent.com/52667241/222405809-d6c34a8f-68e3-4dd0-aa60-57d91778bab8.mp4 
 
 
 
