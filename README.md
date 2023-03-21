@@ -44,31 +44,13 @@ To run our algorithms and implementations, follow the below steps:
     git clone https://github.com/hruthikvs/RL_dVRK_surgery.git
     ```
 
-2. Launch the required Copelia Environment 
+2. Launch the required Copelia Environment from the *Copelia_env* folder
 
-    ```bash
-    wget http://vision.princeton.edu/projects/2017/arc/downloads/suction-based-grasping-snapshot-10001.t7
-    ```
-
-    Direct download link: [suction-based-grasping-snapshot-10001.t7 (450.1 MB)](http://vision.princeton.edu/projects/2017/arc/downloads/suction-based-grasping-snapshot-10001.t7)
-
-3. Run our model on an optional target RGB-D image. Input color images should be 24-bit RGB PNG, while depth images should be 16-bit PNG, where depth values are saved in deci-millimeters (10<sup>-4</sup>m).
-
-    ```bash
-    th infer.lua # creates results.h5
-    ```
-
-    or
-
-    ```bash
-    imgColorPath=<image.png> imgDepthPath=<image.png> modelPath=<model.t7> th infer.lua # creates results.h5
-    ```
-
-4. Visualize the predictions in Matlab. Shows a heat map of confidence values where hotter regions indicate better locations for grasping with suction. Also displays computed surface normals, which can be used to decide between robot motion primitives suction-down or suction-side. Run the following in Matlab:
-
-    ```matlab
-    visualize; % creates results.png and normals.png
-    ```
+3. From the *Task_envs* folder select the respective folders
+    
+    * The `dVRK_peg_transfer.ttt` environment can be run using Multi-Goal Reach Task, Pick and Place Task (*TODO) and 3D Vision Task (*TODO)
+    * The `block.ttt` or `block_small.ttt` can be run using  Task controllers present in the `RL_Coordinates_based` folder as well as the `RL_Vision_based` folder.  These envrionments consists of a small sized peg board with a pixed goal location at one corner indicated by a green block.
+    * The `block_randomise.ttt` environment can be run using the 
 
 ## Training
 
@@ -103,8 +85,7 @@ To train your own model:
     ```bash
     th train.lua
      ```
-
-    Tip: if you run out of GPU memory (CUDA error=2), reduce batch size or modify the network architecture in `model.lua` to use the smaller [ResNet-50 (256.7 MB)](http://vision.princeton.edu/projects/2017/arc/downloads/resnet-50.t7) model pre-trained on ImageNet.
+  
 
 ## Evaluation
 
