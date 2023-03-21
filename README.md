@@ -83,39 +83,4 @@ To evaluate a trained model:
     model = model_class.load('models/DDPG_HER-1676442643/50000.zip', env=env)
     ```
 
-2. Run our pre-trained model to get affordance predictions for the testing split of our grasping dataset:
-
-    ```bash
-    th test.lua # creates evaluation-results.h5
-    ```
-
-    or run your own model:
-
-    ```bash
-    modelPath=<model.t7> th test.lua # creates evaluation-results.h5
-    ```
-
-3. Run the evaluation script in Matlab to compute pixel-level precision against manual annotations from the grasping dataset, as reported in our [paper](https://arxiv.org/pdf/1710.01330.pdf):
-
-    ```matlab
-    evaluate;
-    ```
-
-## Baseline Algorithm
-
-Our baseline algorithm predicts affordances for suction-based grasping by first computing 3D surface normals of the point cloud (projected from the RGB-D image), then measuring the variance of the surface normals (higher variance = lower affordance). To run our baseline algorithm over the testing split of our grasping dataset:
-
-1. Navigate to `arc-robot-vision/suction-based-grasping/baseline`
-
-    ```bash
-    cd arc-robot-vision/suction-based-grasping/baseline
-    ```
-
-2. Run the following in Matlab:
-
-    ```matlab
-    test; % creates results.mat
-    evaluate;
-    ```
-
  
