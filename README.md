@@ -18,16 +18,16 @@ This repository contains my Dual Degree Project work as part of my IDDD (Inter-D
 
 ## Simulator - RL Interface 
 
-![DDP Mid Review](https://user-images.githubusercontent.com/52667241/226592487-4403dd6e-1349-4aef-935e-3af28f88f2b8.png)
+ 
+<div align="center">
+<img src="https://user-images.githubusercontent.com/52667241/226593143-755e02c3-08c1-4ca5-82b3-ca64cd29761b.png" height="230px" width="307px">
+</div>
+### Modelled Tasks
+* [Multi-Goal Reach Task](#multi-goal-reach) - DDPG+HER algorithm is used to learn optimal trajectories from a start point to multiple queried goal locations.
+* [Block Push Task](#block-push) 
+    * [Using Simulator Coordinates](#baseline-algorithm) - To push the block from a given start to goal position using the coordinates of the block, end effector, and goal which are taken from the simulator
+    * [End-to-End Image Based Training](#end-to-end-image) - To push the block from a given start to goal position by training directly on Images from an endoscopic camera. This is done by using a CNN feature extraction pipeline attached to the RL algorithm.
 
-
-### Autonomous Medical Surgery Robot 
-* SAC: [Soft Actor-Critic: Off-Policy Maximum Entropy Deep Reinforcement Learning with a Stochastic Actor](https://arxiv.org/abs/1801.01290)
-* SAC+AE: [Improving Sample Efficiency in Model-Free Reinforcement Learning from Images](https://arxiv.org/abs/1910.01741)
-* CURL: [CURL: Contrastive Unsupervised Representations for Reinforcement Learning](https://arxiv.org/abs/2004.04136)  
-* RAD: [Reinforcement Learning with Augmented Data](https://arxiv.org/abs/2004.14990)
-* DrQ: [Image Augmentation Is All You Need: Regularizing Deep Reinforcement Learning from Pixels](https://arxiv.org/abs/2004.13649)
-* ATC: [Decoupling Representation Learning from Reinforcement Learning](https://arxiv.org/abs/2009.08319)
 
 
 
