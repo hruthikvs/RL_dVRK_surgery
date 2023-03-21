@@ -22,6 +22,7 @@ This repository contains my Dual Degree Project work as part of my IDDD (Inter-D
 <div align="center">
 <img src="https://user-images.githubusercontent.com/52667241/226593143-755e02c3-08c1-4ca5-82b3-ca64cd29761b.png" height="230px" width="307px">
 </div>
+
 ### Modelled Tasks
 * [Multi-Goal Reach Task](#multi-goal-reach) - DDPG+HER algorithm is used to learn optimal trajectories from a start point to multiple queried goal locations.
 * [Block Push Task](#block-push) 
