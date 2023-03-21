@@ -77,10 +77,10 @@ To evaluate a trained model:
 
 1. Navigate to the folder containing the test file with naming convention `Test_<Algorithm>_<Task_env>.py`.
 
-2. 
+2. modify the file path in the code section below to the respective `<model_folder>/<train_timesteps>.zip`
 
-    ```bash
-    cd arc-robot-vision/suction-based-grasping/convnet
+    ```python
+    model = model_class.load('models/DDPG_HER-1676442643/50000.zip', env=env)
     ```
 
 2. Run our pre-trained model to get affordance predictions for the testing split of our grasping dataset:
