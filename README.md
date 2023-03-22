@@ -20,14 +20,9 @@ This repository contains my Dual Degree Project work as part of my IDDD (Inter-D
 </div>
 
 https://user-images.githubusercontent.com/52667241/222405809-d6c34a8f-68e3-4dd0-aa60-57d91778bab8.mp4 
-<div align="center"> 
-<img src="https://user-images.githubusercontent.com/52667241/226973723-a81ce055-bd53-4e29-b01e-b6afaaa3ba25.svg" height="500px" width="707px">
-</div>
- 
-<div align="center"> 
-<img src="https://user-images.githubusercontent.com/52667241/222405809-d6c34a8f-68e3-4dd0-aa60-57d91778bab8.mp4 " height="500px" width="707px">
-</div>
- 
+
+<img src="https://user-images.githubusercontent.com/52667241/222405809-d6c34a8f-68e3-4dd0-aa60-57d91778bab8.mp4" width="200">
+
 # Requirements and Dependencies
 
 * NVIDIA GPU 
