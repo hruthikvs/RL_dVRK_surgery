@@ -1,4 +1,4 @@
-# Deep Reinforcement Learning for Autonomous Laparoscopic Surgery
+# Vision Based Deep Reinforcement Learning for Autonomous Laparoscopic Surgery
 
 This repository contains my Dual Degree Project work as part of my IDDD (Inter-Disciplinary Dual Degree) Programme in IIT Madras, India. Experiments are performed on the [da Vinci Research Kit Surgical Robot](https://www.intuitive-foundation.org/dvrk/) on the CopeliaSim Robotics Simulator. 
 
@@ -19,6 +19,7 @@ This repository contains my Dual Degree Project work as part of my IDDD (Inter-D
 <img src="https://user-images.githubusercontent.com/52667241/226973723-a81ce055-bd53-4e29-b01e-b6afaaa3ba25.svg" height="500px" width="707px">
 </div>
 
+## End-to-End Vision based learning
 https://user-images.githubusercontent.com/52667241/222405809-d6c34a8f-68e3-4dd0-aa60-57d91778bab8.mp4 
  
 
