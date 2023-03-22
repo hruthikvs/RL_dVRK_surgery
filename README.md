@@ -16,9 +16,6 @@ This repository contains my Dual Degree Project work as part of my IDDD (Inter-D
     * [End-to-End Image Based Training](#end-to-end-image) - To push the block from a given start to goal position by training directly on Images from an endoscopic camera. This is done by using a CNN feature extraction pipeline attached to the RL algorithm.
 
 https://user-images.githubusercontent.com/52667241/222405809-d6c34a8f-68e3-4dd0-aa60-57d91778bab8.mp4 
-![DDP Mid Review](https://user-images.githubusercontent.com/52667241/226973270-c8cc808c-e802-4d2f-8998-6d923ae2d581.svg)
-
-
 
  
  
