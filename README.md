@@ -24,7 +24,7 @@ https://user-images.githubusercontent.com/52667241/222405809-d6c34a8f-68e3-4dd0-
 # Requirements and Dependencies
 
 * NVIDIA GPU 
-* [Torch](http://torch.ch/)   
+* [PyTorch with CUDA](http://torch.ch/)   
 * [Gym](https://github.com/openai/gym) Version 0.21.0
 * [Stable Baselines3](https://stable-baselines3.readthedocs.io/en/master/guide/install.html) 
 * [CopeliaSim Surgical Simulator](https://www.coppeliarobotics.com/downloads)
