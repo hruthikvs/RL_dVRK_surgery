@@ -21,7 +21,7 @@ This repository contains my Dual Degree Project work as part of my IDDD (Inter-D
 
 https://user-images.githubusercontent.com/52667241/222405809-d6c34a8f-68e3-4dd0-aa60-57d91778bab8.mp4 
 
-<img src="https://user-images.githubusercontent.com/52667241/222405809-d6c34a8f-68e3-4dd0-aa60-57d91778bab8.mp4" width="200">
+<img src="https://user-images.githubusercontent.com/52667241/222405809-d6c34a8f-68e3-4dd0-aa60-57d91778bab8.mp4" width="100">
 
 # Requirements and Dependencies
 
